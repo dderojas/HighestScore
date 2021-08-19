@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const readJSON = (param, callback, n) => {
+const findHighestScore = (param, n) => {
   fs.readFile(param, 'utf-8', (err, jsonString) => {
     if(err) {
       console.log(err)
@@ -13,7 +13,7 @@ const readJSON = (param, callback, n) => {
             throw new Error('one of the items is not a JSON object or does not have an id property')
           }
         }
-        callback(data, n)
+        highestScoreFunc(data, n)
       }
       catch(e) {
         console.log(e);
@@ -39,4 +39,4 @@ const highestScoreFunc = (data, n) => {
   return 'success';
 }
 
-readJSON('../highestScoreMockData.json', highestScoreFunc, 10)
+findHighestScore('../highestScoreMockData.json', 10)
