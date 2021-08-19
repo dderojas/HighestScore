@@ -39,4 +39,4 @@ const highestScoreFunc = (data, n) => {
   return 'success';
 }
 //example file path for dev testing
-findHighestScore('../highestScoreMockData.json', 10)
+findHighestScore('./highestScoreMockData.json', 10)
