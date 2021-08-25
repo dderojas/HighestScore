@@ -38,5 +38,7 @@ const highestScoreFunc = (data, n) => {
   console.log(JSON.stringify(results))
   return 'success';
 }
-//example file path for dev testing
-findHighestScore('./highestScoreMockData.json', 10)
+
+const params = process.argv.slice(2)
+console.log(params)
+findHighestScore(params[0], params[1])
