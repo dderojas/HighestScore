@@ -1,44 +1,52 @@
 const fs = require('fs');
 
-const findHighestScore = (param, n) => {
-  fs.readFile(param, 'utf-8', (err, jsonString) => {
-    if(err) {
-      console.log(err)
-    } else {
-      try {
-        const data = JSON.parse(jsonString)
 
-        for (const val in data) {
-          if (typeof data[val] !== 'object' || !data[val].hasOwnProperty('id')) {
-            throw new Error('one of the items is not a JSON object or does not have an id property')
-          }
-        }
-        highestScoreFunc(data, n)
-      }
-      catch(e) {
-        console.log(e);
-      }
-    }
-  })
+const findHighestScoreTWO = (param, n) => {
+  try {
+    let stream = fs.createReadStream(param)
+    stream.on('data', (dataChunk) => {
+      const stringData = dataChunk.toString().split('\r\n').map((elem) => {
+        // checking for non JSON format and ID
+        const elemArr = elem.split(':')
+        const scoreLength = elemArr[0].length
+        const jsonObj = JSON.parse(elemArr.join(':').slice(scoreLength + 2))
+        
+        if (typeof jsonObj !== 'object' && !jsonObj.hasOwnProperty('id')) throw new Error('one of the items is not a JSON object or does not have an id property')
+        return elem
+      })
+
+      highestScoreFuncTWO(stringData, n)
+    })
+  }
+  catch(e) {
+    console.log(e)
+  }
 }
 
-const highestScoreFunc = (data, n) => {
-  const arr = Object.keys(data).sort((a, b) => b - a);
+const highestScoreFuncTWO = (data, n) => {
+  // sort highest score
+  const arr = data.sort((a, b) => {
+    return b.split(':')[0] - a.split(':')[0]
+  })
+
   const results = []
 
   for (let i = 0; i < arr.length; i++) {
     if (results.length === n) break;
-    if (arr[i] === arr[i + 1]) continue;
+    if (arr[i].split(':')[0] === arr[i + 1]?.split(':')[0]) continue;
 
-    const val = arr[i];
+    const scoreArr = arr[i].split(':')
+    const score = scoreArr[0]
+    const jsonObj = scoreArr.join(':').slice(score.length + 2)
+    const id = JSON.parse(jsonObj)['id']
 
-    results.push({ score: parseInt(val), id: data[val].id}) 
+    results.push({ score: parseInt(score), id })
   }
-
-  console.log(JSON.stringify(results))
+  console.log(results, 'success')
   return 'success';
 }
 
 const params = process.argv.slice(2)
 console.log(params)
-findHighestScore(params[0], params[1])
+
+findHighestScoreTWO(params[0], params[1])
